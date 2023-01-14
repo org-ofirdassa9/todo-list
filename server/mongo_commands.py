@@ -7,9 +7,14 @@ db = client['todolist']
 tasks_collection = db['tasks']
 
 def add_task(description):
-    tasks_list = {'description': description, 'completed': False}
-    tasks_collection.insert_one(tasks_list)
-    return tasks_list
+    try:
+        tasks_list = {'description': description, 'completed': False}
+        tasks_collection.insert_one(tasks_list)
+        tid = str(tasks_list['_id'])
+        tasks_list['_id'] = tid
+        return tasks_list
+    except Exception as e:
+        return {'status_code': 200, 'error_message': e}
 
 def get_tasks():
     cursor = tasks_collection.find()
@@ -25,18 +30,21 @@ def get_tasks():
     return tasks_dict
 
 def delete_task(tid):
-    tasks_collection.delete_one({'_id': ObjectId(tid)})
+    try:  
+        tasks_collection.delete_one({'_id': ObjectId(tid)})
+        return {'tid': tid} 
+    except Exception as e:
+        return {'404': 'Not Found'}
 
-def update_task(tid):
+
+def update_task_status(task):
     try:
-        completed = tasks_collection.find_one({"_id":  ObjectId(tid)})['completed'] 
+        completed = tasks_collection.find_one({"_id":  ObjectId(task['task']['tid'])})['completed'] 
         if completed:
-            print('was True')
-            tasks_collection.update_one({"_id": ObjectId(tid)}, {"$set": {"completed": False}})
-            return {'200': 'OK'}
-        print('was False')
-        tasks_collection.update_one({"_id": ObjectId(tid)}, {"$set": {"completed": True}})
-        return {'200': 'OK'}
+            tasks_collection.update_one({"_id": ObjectId(task['task']['tid'])}, {"$set": {"completed": False}})
+            return {'tid': task['task']['tid']}
+        tasks_collection.update_one({"_id": ObjectId(task['task']['tid'])}, {"$set": {"completed": True}})
+        return {'tid': task['task']['tid']}
     except Exception as e:
         print(e)
         return {'404': 'Not Found'}

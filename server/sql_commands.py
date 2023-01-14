@@ -9,19 +9,27 @@ class Db_Commands:
         self.cursor = self.conn.cursor()
         
     def get_password(self, email):
-        query = 'SELECT PasswordHash FROM dbo.Passwords WHERE UserID IN (SELECT UserID FROM dbo.Users WHERE Email = ?)'
-        self.cursor.execute(query, email)
-        return self.cursor.fetchone()[0]
+        try:
+            query = 'SELECT PasswordHash FROM dbo.Passwords WHERE UserID IN (SELECT UserID FROM dbo.Users WHERE Email = ?)'
+            self.cursor.execute(query, email)
+            return self.cursor.fetchone()[0]
+        except Exception as e:
+            print(e)
 
     def create_user(self, email, hashed_password, first_name, last_name):
+        #check if this email already exists
+        if self.get_user(email):
+            return 'This email already exists'
         query = 'INSERT INTO dbo.Users (Email, HasPassword, FirstName, LastName, CreatedAt) OUTPUT Inserted.UserID VALUES (?, 1, ?, ?, ?)'
-        params = email, first_name, last_name, datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        params = email, first_name, last_name, date
         self.cursor.execute(query, params)
         inserted_user_id = self.cursor.fetchone()[0]
         query = 'INSERT INTO dbo.Passwords (UserId, PasswordHash) VALUES (?, ?)'
         params = inserted_user_id, hashed_password
         self.cursor.execute(query, params)
         self.cursor.commit()
+        return self.get_user(email)
 
     def get_user(self, email):
         query = 'SELECT * FROM dbo.Users WHERE Email = ?'
@@ -31,4 +39,4 @@ class Db_Commands:
         if row is None:
             return None
         # Create a new User object and return it
-        return User.User(*row)
+        return User.User(*row).__dict__

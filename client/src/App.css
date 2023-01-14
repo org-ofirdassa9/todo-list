@@ -2,6 +2,7 @@
   text-align: center;
 }
 
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -35,6 +36,21 @@ input, button {
 
 .App-link {
   color: #61dafb;
+}
+
+/* .category-button {
+  display: block;
+} */
+
+.navbar {
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.navbar-open {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 @keyframes App-logo-spin {

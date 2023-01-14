@@ -20,10 +20,10 @@ CORS(app, origins=["http://localhost:3000"])
 
 @app.route('/gettasks', methods=['GET'])
 def gettasks():
-    user = sql.get_user('aa@aaa')
+    user = sql.get_user('aa@aa')
     if user is None:
-        return mongo_commands.get_tasks()
-    return jsonify({"user": user.format_user()})
+        return {"tasks": []}
+    return mongo_commands.get_tasks()
 
 @app.route('/users/<email>', methods=['GET', 'DELETE'])
 def users(email):
@@ -37,70 +37,70 @@ def users(email):
         ####TBD####
         pass
 
-@app.route('/addtask/<description>', methods=['POST'])
-def addtask(description):
+@app.route('/addtask', methods=['POST'])
+def addtask():
+    data = request.get_json()
+    print(data)
+    description = data['data']['task']
     if not description:
-        flash('Error: Task title is required')
-    else:
-        mongo_commands.add_task(description)
-    return redirect('http://localhost:3000')
-
-@app.route('/deletetask/<task_id>', methods=['DELETE'])
-def deletetask(task_id):
-    mongo_commands.delete_task(task_id)
-    return redirect('http://localhost:3000')
-
-@app.route('/updatetask/<task_id>', methods=['PUT'])
-def updatetask(task_id):
+        return {'status_code': 200, 'message': 'Task is required!'}
+    return mongo_commands.add_task(description)
+        
+@app.route('/deletetask', methods=['DELETE'])
+def deletetask():
     try:
-        mongo_commands.update_task(task_id)
-        return {'200': 'OK'}
+        task_id = request.args.get('tid')
+        return mongo_commands.delete_task(task_id)
     except Exception as e:
-        return {'404': f'Not Found {e}'}
+        return {'status_code': 200, 'message': e}
 
-@app.route('/signup', methods=['GET', 'POST'])
+@app.route('/updatetaskstatus', methods=['PUT'])
+def updatetask():
+    data = request.get_json()
+    task = data['data']
+    return mongo_commands.update_task_status(task)
+
+@app.route('/signup', methods=['POST'])
 def signup():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        first_name = request.form['first-name']
-        last_name = request.form['last-name']
-        # hash the password
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-        print(f'password {password}, hashedpassword {hashed_password}')
-        sql.create_user(email,hashed_password,first_name,last_name)
-        return redirect('/signupsuccess')
-    return render_template('signup.html')
+    data = request.get_json()
+    if not all(data[key] for key in data):
+        return {'status_code': 200, 'message': 'Please make sure all field are filled'}
+    email = data['email']
+    password = data['password']
+    first_name = data['firstname']
+    last_name = data['lastname']
+    # hash the password
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    try:
+        result = sql.create_user(email,hashed_password,first_name,last_name)
+        return {'status_code': 200, 'message': result}
+    except Exception as e:
+        return {'status_code': 200, 'message': e}
 
-@app.route('/login', methods=['GET', 'POST'])
+
+@app.route('/login', methods=['POST'])
 def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        result = sql.get_password(email)
-        hashed_password = result.decode().rstrip("\x00").encode()
-        # Check if the password matches the one provided by the user
-        if hashed_password is not None:
-            # Fetch the hashed password from the result
-            if bcrypt.checkpw(password.encode('utf-8'), hashed_password):
-                # password is correct, redirect to welcome page
-                return redirect('/welcome')
-            else:
-                # password is incorrect, return an error message
-                return "Incorrect password"
+    data = request.get_json()
+    email = data["email"]
+    if not email:
+        return {'status_code': 200, 'message': 'No email was supplied!'}
+    password = data["password"]
+    result = sql.get_password(email)
+    if not result:
+        return {'status_code': 200, 'message': f"Didn't found a user {email}"}
+    hashed_password = result.decode().rstrip("\x00").encode()
+    # Check if the password matches the one provided by the user
+    if hashed_password is not None:
+        # Fetch the hashed password from the result
+        if bcrypt.checkpw(password.encode('utf-8'), hashed_password):
+            # password is correct, redirect to welcome page
+            return {'status_code': 200, 'message': 'Welcome!'}
         else:
-            # user does not exist, return an error message
-            return "User does not exist"
-    return render_template('login.html')
-
-@app.route('/welcome')
-def welcome():
-    return render_template('welcome.html')
-
-@app.route('/signupsuccess')
-def signupsuccess():
-    return render_template('signupsuccess.html')
-
+            # password is incorrect, return an error message
+            return {'status_code': 200, 'message': 'Wrong password!'}
+    else:
+        # user does not exist, return an error message
+        return {'status_code': 200, 'message': 'User Does not exist!'}
 
 if __name__ == '__main__':
     app.run()
