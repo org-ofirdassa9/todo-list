@@ -8,11 +8,6 @@ const categories = [
 ]
 
 const Navbar = () => {
-    // const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-    // const handleMenuClick = () => {
-    //   setIsMenuOpen(!isMenuOpen);
-    // }
     
   return (
     <div>

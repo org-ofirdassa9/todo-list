@@ -20,8 +20,6 @@ function App() {
 
   return (
     <div>
-      {/* <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link> */}
-      {/* <i className="fa fa-bars" onClick={handleMenuClick} /> */}
       <img src={menuIcon} alt="menu icon" onClick={handleMenuClick} />
       <div className={`navbar ${isMenuOpen ? 'navbar-open' : ''}`}>
         <Navbar isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
