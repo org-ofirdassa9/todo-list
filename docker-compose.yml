@@ -21,3 +21,9 @@ services:
     - .\sql\data:/var/opt/mssql/data
     - .\sql\log:/var/opt/mssql/log
     - .\sql\secrets:/var/opt/mssql/secrets
+  redis:
+    image: "redis:latest"
+    ports:
+    - 6379:6379
+    volumes:
+      - .\redis:/data

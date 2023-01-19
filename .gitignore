@@ -24,8 +24,11 @@ client/yarn-error.log*
 client/package-lock.json
 
 server/venv/
+server/api/__pycache__
 server/__pycache__
 server/.flaskenv
+
+redis/
 
 mongo/data/
 

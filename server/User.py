@@ -1,12 +1,12 @@
 class User():
 
     def __init__(self, id, email, has_password, first_name, last_name, created_at):
-        self._id = id
-        self._email = email
-        self._has_password = has_password
-        self._first_name = first_name
-        self._last_name = last_name
-        self._created_at = created_at
+        self.id = id
+        self.email = email
+        self.has_password = has_password
+        self.first_name = first_name
+        self.last_name = last_name
+        self.created_at = created_at
     
     @classmethod
     def from_string(cls, user_string):
@@ -21,10 +21,10 @@ class User():
 
     def format_user(self): 
         return {
-            'id': self._id,
-            'email': self._email,
-            'has_password': self._has_password,
-            'fist_name': self._first_name,
-            'last_name': self._last_name,
-            'created_at': self._created_at
+            'id': self.id,
+            'email': self.email,
+            'has_password': self.has_password,
+            'fist_name': self.first_name,
+            'last_name': self.last_name,
+            'created_at': self.created_at
         }

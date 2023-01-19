@@ -37,14 +37,14 @@ def delete_task(tid):
         return {'404': 'Not Found'}
 
 
-def update_task_status(task):
+def update_task_status(tid):
     try:
-        completed = tasks_collection.find_one({"_id":  ObjectId(task['task']['tid'])})['completed'] 
+        completed = tasks_collection.find_one({"_id":  ObjectId(tid)})['completed']
         if completed:
-            tasks_collection.update_one({"_id": ObjectId(task['task']['tid'])}, {"$set": {"completed": False}})
-            return {'tid': task['task']['tid']}
-        tasks_collection.update_one({"_id": ObjectId(task['task']['tid'])}, {"$set": {"completed": True}})
-        return {'tid': task['task']['tid']}
+            tasks_collection.update_one({"_id": ObjectId(tid)}, {"$set": {"completed": False}})
+            return {'tid': tid}
+        tasks_collection.update_one({"_id": ObjectId(tid)}, {"$set": {"completed": True}})
+        return {'tid': tid}
     except Exception as e:
         print(e)
         return {'404': 'Not Found'}

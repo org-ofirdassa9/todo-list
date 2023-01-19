@@ -18,8 +18,8 @@ class Db_Commands:
 
     def create_user(self, email, hashed_password, first_name, last_name):
         #check if this email already exists
-        if self.get_user(email):
-            return 'This email already exists'
+        if self.get_user_by_email(email):
+            return False
         query = 'INSERT INTO dbo.Users (Email, HasPassword, FirstName, LastName, CreatedAt) OUTPUT Inserted.UserID VALUES (?, 1, ?, ?, ?)'
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         params = email, first_name, last_name, date
@@ -29,12 +29,22 @@ class Db_Commands:
         params = inserted_user_id, hashed_password
         self.cursor.execute(query, params)
         self.cursor.commit()
-        return self.get_user(email)
+        return self.get_user_by_email(email)
 
-    def get_user(self, email):
+    def get_user_by_email(self, email):
         query = 'SELECT * FROM dbo.Users WHERE Email = ?'
         # Execute the SELECT query to fetch the user by id
         self.cursor.execute(query, email)
+        row = self.cursor.fetchone()
+        if row is None:
+            return None
+        # Create a new User object and return it
+        return User.User(*row).__dict__
+
+    def get_user_by_id(self, id):
+        query = 'SELECT * FROM dbo.Users WHERE UserId = ?'
+        # Execute the SELECT query to fetch the user by id
+        self.cursor.execute(query, id)
         row = self.cursor.fetchone()
         if row is None:
             return None
