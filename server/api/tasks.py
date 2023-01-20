@@ -1,26 +1,36 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 import mongo_commands
 import sql_commands
+import User
 
 
 sql = sql_commands.Db_Commands()
 
 tasks = Blueprint('tasks', __name__)
+
+@tasks.route('/adduser', methods=['POST'])
+def adduser():
+    data = request.get_json()
+    user_id = data['user_id']
+    resp = mongo_commands.add_user(user_id)
+    return jsonify({"message": resp['message']}), resp['status_code']
+
 @tasks.route('/gettasks', methods=['GET'])
 def gettasks():
-    user = sql.get_user_by_email('aa@aa')
+    user_id = request.args.get('user_id')
+    user = sql.get_user_by_id(user_id)
     if user is None:
         return {"tasks": []}
-    return mongo_commands.get_tasks()
+    return mongo_commands.get_user_tasks(user_id)
 
 @tasks.route('/addtask', methods=['POST'])
 def addtask():
     data = request.get_json()
-    print(data)
+    user_id = data['user_id']
     description = data['data']['description']
-    if not description:
-        return {'status_code': 200, 'message': 'Task is required!'}
-    return mongo_commands.add_task(description)
+    if not description or not user_id:
+        return {'status_code': 403, 'message': 'description, or user_id is missing'}
+    return mongo_commands.add_task(user_id, description)
 
 @tasks.route('/deletetask', methods=['DELETE'])
 def deletetask():

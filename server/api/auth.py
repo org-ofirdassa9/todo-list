@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, session
 import bcrypt
 import sql_commands
+import mongo_commands
 
 sql = sql_commands.Db_Commands()
 
@@ -8,11 +9,10 @@ auth = Blueprint('auth', __name__)
 
 @auth.route('/@me')
 def get_current_user():
-    user_id = session.get('user_id')
-    if not user_id:
+    user_session = session.get('user')
+    if not user_session:
         return jsonify({"error": "Unauthorized"}), 401
-    user = sql.get_user_by_id(user_id)
-    return jsonify(user)
+    return jsonify(user_session)
 
 @auth.route('/login', methods=['POST'])
 def login():
@@ -31,7 +31,8 @@ def login():
         if bcrypt.checkpw(password.encode('utf-8'), hashed_password):
             # password is correct, redirect to welcome page
             user = sql.get_user_by_email(email)
-            session['user_id'] = user['id']
+            session['user'] = user
+            print(session.get('user'))
             return jsonify(user), 200
         else:
             # password is incorrect, return an error message
@@ -61,6 +62,17 @@ def signup():
 
 @auth.route('/logout', methods=['POST'])
 def logout():
-    user_id = session.get('user_id')
-    session.pop('user_id')
-    return jsonify({'message': f'user_id {user_id} was logged out'}), 200
+    user = session.get('user')
+    if user:
+        session.pop('user')
+        return jsonify({'message': f'user {user["id"]} was logged out'}), 200
+    return jsonify({'message': 'must log in to log out'}), 404
+
+# @auth.route('/getcookie')
+# def getcookie():
+#     try:
+#         session = request.cookies.get('session')
+#         return jsonify({'session': session}), 200
+#     except Exception as e:
+#         return jsonify({'session': 'no session was found, please log in'}), 404
+

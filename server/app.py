@@ -1,9 +1,6 @@
-from flask import Flask, session, render_template, request, redirect, flash, jsonify
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_session import Session
-from flask_jwt_extended import JWTManager
-import bcrypt
-import os
 import sql_commands
 from config import ApplicationConfig
 from api.tasks import tasks
@@ -19,7 +16,6 @@ app.register_blueprint(tasks, url_prefix='/api')
 app.register_blueprint(token, url_prefix='/api')
 app.register_blueprint(auth, url_prefix='/api')
 
-jwt = JWTManager(app)
 CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
 
 # @app.after_request

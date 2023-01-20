@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
 import httpClient from '../httpClient';
 import { User } from '../types';
 import Logout from './Logout';
@@ -8,6 +8,11 @@ const baseUrl="//localhost:5000/api"
 
 const LandingPage: React.FC = () => {
     const [user, setUser] = useState<User | null>(null);
+    const navigate = useNavigate();
+
+    const handleToDoClick = () => {
+        navigate('/todo', { state: { user }});
+    };
 
     useEffect(() => {
         (async () => {
@@ -28,9 +33,7 @@ const LandingPage: React.FC = () => {
         <div>
             <h1>Logged in!</h1>
             <h3>User {user.first_name} {user.last_name}</h3>
-            <Link to={{ pathname: '/todo', search: `user=${user.first_name}` }}>
-                <button>Go to Todo</button>
-            </Link>
+            <button onClick={handleToDoClick}>Go to Todo</button>
             <Logout />
         </div>
         ) : (

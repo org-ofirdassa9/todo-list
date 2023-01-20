@@ -7,7 +7,7 @@ const Logout: React.FC = () => {
     
     const logOutUser = async () => {
         await httpClient.post(`${baseUrl}/logout`);
-        window.location.reload()
+        window.location.href = "http://localhost:3000/"
     }
 
   return (
