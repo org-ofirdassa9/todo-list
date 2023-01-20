@@ -8,13 +8,6 @@ sql = sql_commands.Db_Commands()
 
 tasks = Blueprint('tasks', __name__)
 
-@tasks.route('/adduser', methods=['POST'])
-def adduser():
-    data = request.get_json()
-    user_id = data['user_id']
-    resp = mongo_commands.add_user(user_id)
-    return jsonify({"message": resp['message']}), resp['status_code']
-
 @tasks.route('/gettasks', methods=['GET'])
 def gettasks():
     user_id = request.args.get('user_id')
