@@ -5,8 +5,8 @@ services:
     ports: 
     - 27017:27017
     environment:
-      MONGO_INITDB_ROOT_USERNAME: app
-      MONGO_INITDB_ROOT_PASSWORD: hunter2
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
     volumes:
     - .\mongo\data:/data/db
   sql:
@@ -15,7 +15,7 @@ services:
     - 1433:1433
     environment:
       ACCEPT_EULA: Y
-      MSSQL_SA_PASSWORD: Ofirdassa1997-
+      MSSQL_SA_PASSWORD: ${SQL_PASSWORD}
       MSSQL_PID: Express
     volumes:
     - .\sql\data:/var/opt/mssql/data
